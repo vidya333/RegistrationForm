@@ -1,0 +1,143 @@
+import React from 'react';
+import 'font-awesome/css/font-awesome.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container,Button,Form,Table } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import { useState } from 'react';
+import './App.css';
+
+
+function App() {
+  const [show, setShow] = useState(false);
+  const[allData,setAllData]=useState([{}])
+
+  const getFormData=(e)=>{
+    e.preventDefault();
+    let form =e.target;
+    let formData=new FormData(form);  
+   
+    let temp={};
+    for (let data of formData.entries()){
+                  let key=data[0];
+                  let value=data[1];
+                  if(typeof(value)==="object"){
+                    value=URL.createObjectURL(value);
+                  }
+                  // console.log(value);
+                  temp[key]=value;
+                  console.log(temp);
+                }
+    return (
+      setAllData((old)=>{
+        return [
+          ...old,
+          temp
+        ]
+      }),setShow(false)
+    )
+  }
+  function deleteUser(index){
+    // console.log(index);
+    let tempdata=[...allData];
+    tempdata.splice(index,1);
+    window.confirm("Are you sure you want to delete this item?");
+    return(
+      setAllData(tempdata)
+    )
+  }
+  function Tr({item}){
+    if(item.index===0){
+      return null;
+    }
+    else{
+      return(
+        <tr>
+          <td>{item.index}</td>
+          <td>{item.name}</td>
+          <td>{item.email}</td>
+          <td>{item.pass}</td>
+          <td>{item.mobile}</td>
+          <td><img src={item.DP} alt="" width={20} 
+          height={20} className='rounded-circle'/></td>
+          <td>
+            <Button variant='primary me-2'>
+              <i className='fa fa-edit'></i>
+            </Button>
+            <Button variant='danger'onClick={()=>{deleteUser(item.index)}}>
+              <i className='fa fa-trash'></i>
+            </Button>
+          </td>
+      </tr>
+      )
+    }
+    
+  }
+  return (
+    <div>
+        <Container className='p-5'>
+            <Button onClick={()=>setShow(true)} className='btn btn-success'>
+              <i className='fa fa-plus'></i> Add User
+            </Button>
+        </Container>
+
+        <Modal show={show} onHide={()=>setShow(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>User Registration</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={getFormData}>
+            <Form.Group>
+              <Form.Label>Full Name</Form.Label>
+                <Form.Control type="text" name="name" placeholder="Firstname Lastname"></Form.Control>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Email</Form.Label>
+                <Form.Control type="email" name="email" placeholder="example@gmail.com"></Form.Control>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Password</Form.Label>
+                <Form.Control type="password" name="pass" placeholder="Set Password"></Form.Control>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Contact no.</Form.Label>
+                <Form.Control type="tel" name="mobile" placeholder="10 digit Number"></Form.Control>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Profile Picture</Form.Label>
+                <Form.Control type="file" name="DP" placeholder="Upload your photo"></Form.Control>
+            </Form.Group>
+            <Button variant="secondary" onClick={()=>setShow(false)} type='reset' className="my-3 me-2">
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={()=>setShow(false)} type='submit' className="my-3 me-2">
+              Submit
+            </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+        <Container>
+            <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                  <th>Sr.</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Password</th>
+                  <th>Mobile</th>
+                  <th>Profile</th>
+                  <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allData.map((item,index)=>{
+                      item['index']=index;
+                      return<Tr item={item} key={index}/>
+                  })}
+                </tbody>
+            </Table>
+        </Container>
+        
+    </div>
+  )
+}
+export default App;
